@@ -1,43 +1,42 @@
 ﻿#include "CellButton.h"
 
 #include <QMouseEvent>
+#include <QString>
+#include <QSizePolicy>
 
 CellButton::CellButton(const CellPosition& position, QWidget* parent)
     : QPushButton(parent),
-    m_position(position),
-    m_previewOpened(false),
-    m_previewFlagged(false) {
+    m_position(position) {
     setupView();
-    updateView();
+    showClosed();
 }
 
 const CellPosition& CellButton::position() const {
     return m_position;
 }
 
-bool CellButton::isPreviewOpened() const {
-    return m_previewOpened;
-}
+void CellButton::updateFromCell(const Cell& cell) {
+    if (cell.isOpened()) {
+        showOpened(cell);
+        return;
+    }
 
-bool CellButton::isPreviewFlagged() const {
-    return m_previewFlagged;
-}
+    if (cell.isFlagged()) {
+        showFlagged();
+        return;
+    }
 
-void CellButton::resetPreview() {
-    m_previewOpened = false;
-    m_previewFlagged = false;
-    setEnabled(true);
-    updateView();
+    showClosed();
 }
 
 void CellButton::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        openPreview();
+        emit openRequested(m_position);
         return;
     }
 
     if (event->button() == Qt::RightButton) {
-        toggleFlagPreview();
+        emit flagRequested(m_position);
         return;
     }
 
@@ -50,39 +49,27 @@ void CellButton::setupView() {
     setFocusPolicy(Qt::NoFocus);
 }
 
-void CellButton::openPreview() {
-    if (m_previewOpened || m_previewFlagged) {
-        return;
-    }
-
-    m_previewOpened = true;
-    updateView();
-    emit opened();
-}
-
-void CellButton::toggleFlagPreview() {
-    if (m_previewOpened) {
-        return;
-    }
-
-    m_previewFlagged = !m_previewFlagged;
-    updateView();
-    emit flagChanged();
-}
-
-void CellButton::updateView() {
-    if (m_previewOpened) {
-        setText(QString("%1:%2").arg(m_position.row() + 1).arg(m_position.column() + 1));
-        setStyleSheet("QPushButton { background-color: #d6d6d6; border: 1px solid #9e9e9e; font-size: 11px; }");
-        return;
-    }
-
-    if (m_previewFlagged) {
-        setText("⚑");
-        setStyleSheet("QPushButton { background-color: #f5d76e; border: 1px solid #8f8f8f; font-size: 20px; font-weight: bold; }");
-        return;
-    }
-
+void CellButton::showClosed() {
+    setEnabled(true);
     setText("");
     setStyleSheet("QPushButton { background-color: #bdbdbd; border: 1px solid #777777; } QPushButton:hover { background-color: #cfcfcf; }");
+}
+
+void CellButton::showOpened(const Cell& cell) {
+    setEnabled(true);
+
+    if (cell.isNumber()) {
+        setText(QString::number(cell.adjacentMines()));
+    }
+    else {
+        setText("");
+    }
+
+    setStyleSheet("QPushButton { background-color: #d6d6d6; border: 1px solid #9e9e9e; font-size: 18px; font-weight: bold; }");
+}
+
+void CellButton::showFlagged() {
+    setEnabled(true);
+    setText("⚑");
+    setStyleSheet("QPushButton { background-color: #f5d76e; border: 1px solid #8f8f8f; font-size: 20px; font-weight: bold; }");
 }

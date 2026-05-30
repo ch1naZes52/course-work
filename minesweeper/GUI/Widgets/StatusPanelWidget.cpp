@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QString>
 
 StatusPanelWidget::StatusPanelWidget(QWidget* parent)
     : QWidget(parent),

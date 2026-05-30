@@ -6,20 +6,14 @@
 BoardWidget::BoardWidget(QWidget* parent)
     : QWidget(parent),
     m_settings(GameSettings::beginner()),
-    m_gridLayout(nullptr),
-    m_flagCount(0),
-    m_openedCellCount(0) {
+    m_board(m_settings.boardSize()),
+    m_gridLayout(nullptr) {
     setupBoard();
 }
 
 void BoardWidget::resetPreview() {
-    m_flagCount = 0;
-    m_openedCellCount = 0;
-
-    for (CellButton* button : m_buttons) {
-        button->resetPreview();
-    }
-
+    m_board.reset();
+    updateAllButtons();
     updateCounters();
 }
 
@@ -29,6 +23,7 @@ void BoardWidget::setupBoard() {
     m_gridLayout->setSpacing(2);
 
     createButtons();
+    updateAllButtons();
     updateCounters();
 }
 
@@ -48,15 +43,11 @@ void BoardWidget::createButtons() {
 
     for (int row = 0; row < size.rows(); ++row) {
         for (int column = 0; column < size.columns(); ++column) {
-            CellButton* button = new CellButton(CellPosition(row, column), this);
+            CellPosition position(row, column);
+            CellButton* button = new CellButton(position, this);
 
-            connect(button, &CellButton::opened, this, [this, button]() {
-                handleCellOpened(button);
-                });
-
-            connect(button, &CellButton::flagChanged, this, [this, button]() {
-                handleCellFlagChanged(button);
-                });
+            connect(button, &CellButton::openRequested, this, &BoardWidget::openCell);
+            connect(button, &CellButton::flagRequested, this, &BoardWidget::toggleFlag);
 
             m_buttons.push_back(button);
             m_gridLayout->addWidget(button, row, column);
@@ -65,26 +56,52 @@ void BoardWidget::createButtons() {
 }
 
 void BoardWidget::updateCounters() {
-    emit flagCountChanged(m_flagCount);
-    emit openedCellCountChanged(m_openedCellCount);
+    emit flagCountChanged(m_board.flaggedCellCount());
+    emit openedCellCountChanged(m_board.openedCellCount());
 }
 
-void BoardWidget::handleCellOpened(CellButton* button) {
-    if (!button->isPreviewOpened()) {
+void BoardWidget::updateButton(const CellPosition& position) {
+    int index = position.row() * m_settings.boardSize().columns() + position.column();
+
+    if (index < 0 || index >= static_cast<int>(m_buttons.size())) {
         return;
     }
 
-    ++m_openedCellCount;
+    m_buttons[index]->updateFromCell(m_board.cellAt(position));
+}
+
+void BoardWidget::updateAllButtons() {
+    for (CellButton* button : m_buttons) {
+        button->updateFromCell(m_board.cellAt(button->position()));
+    }
+}
+
+void BoardWidget::openCell(const CellPosition& position) {
+    if (!m_board.isValidPosition(position)) {
+        return;
+    }
+
+    Cell& cell = m_board.cellAt(position);
+
+    if (!cell.open()) {
+        return;
+    }
+
+    updateButton(position);
     updateCounters();
 }
 
-void BoardWidget::handleCellFlagChanged(CellButton* button) {
-    if (button->isPreviewFlagged()) {
-        ++m_flagCount;
-    }
-    else {
-        --m_flagCount;
+void BoardWidget::toggleFlag(const CellPosition& position) {
+    if (!m_board.isValidPosition(position)) {
+        return;
     }
 
+    Cell& cell = m_board.cellAt(position);
+
+    if (!cell.toggleFlag()) {
+        return;
+    }
+
+    updateButton(position);
     updateCounters();
 }
