@@ -1,10 +1,11 @@
-#include "minesweeper.h"
-#include <QtWidgets/QApplication>
+﻿#include <QApplication>
+#include "GUI/Window/MainWindow.h"
 
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    minesweeper window;
+int main(int argc, char* argv[]) {
+    QApplication application(argc, argv);
+
+    MainWindow window;
     window.show();
-    return app.exec();
+
+    return application.exec();
 }

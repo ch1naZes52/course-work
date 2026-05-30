@@ -15,8 +15,7 @@
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
-    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')"
-      >$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -46,11 +45,8 @@
     <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
-  <Target Name="QtMsBuildNotFound"
-    BeforeTargets="CustomBuild;ClCompile"
-    Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
-    <Message Importance="High"
-      Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
@@ -96,12 +92,64 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <QtRcc Include="minesweeper.qrc"/>
-    <QtUic Include="minesweeper.ui"/>
-    <QtMoc Include="minesweeper.h"/>
-    <ClCompile Include="minesweeper.cpp"/>
-    <ClCompile Include="main.cpp"/>
-
+    <ClCompile Include="Utils\Config\SettingsProvider.cpp" />
+    <ClCompile Include="Utils\Generator\RandomMineGenerator.cpp" />
+    <ClCompile Include="Utils\TImer\GameTimer.cpp" />
+    <QtRcc Include="minesweeper.qrc" />
+    <QtUic Include="minesweeper.ui" />
+    <ClCompile Include="App\Analyzer\GameAnalyzer.cpp" />
+    <ClCompile Include="App\Command\OpenCellCommand.cpp" />
+    <ClCompile Include="App\Command\RestartGameCommand.cpp" />
+    <ClCompile Include="App\Command\ToggleFlagCommand.cpp" />
+    <ClCompile Include="App\Controller\GameController.cpp" />
+    <ClCompile Include="App\Factory\GameFactory.cpp" />
+    <ClCompile Include="App\Flag\FlagManager.cpp" />
+    <ClCompile Include="App\Observer\GameSubject.cpp" />
+    <ClCompile Include="App\Opener\CellOpener.cpp" />
+    <ClCompile Include="Core\Board\BoardSize.cpp" />
+    <ClCompile Include="Core\Board\GameBoard.cpp" />
+    <ClCompile Include="Core\Cell\Cell.cpp" />
+    <ClCompile Include="Core\Cell\CellPosition.cpp" />
+    <ClCompile Include="Core\Game\GameSettings.cpp" />
+    <ClCompile Include="Core\Mine\MineCounter.cpp" />
+    <ClCompile Include="GUI\Widgets\BoardWidget.cpp" />
+    <ClCompile Include="GUI\Widgets\CellButton.cpp" />
+    <ClCompile Include="GUI\Widgets\StatusPanelWidget.cpp" />
+    <ClCompile Include="GUI\Window\MainWindow.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App\Analyzer\GameAnalyzer.h" />
+    <ClInclude Include="App\Command\ICommand.h" />
+    <ClInclude Include="App\Command\OpenCellCommand.h" />
+    <ClInclude Include="App\Command\RestartGameCommand.h" />
+    <ClInclude Include="App\Command\ToggleFlagCommand.h" />
+    <ClInclude Include="App\Controller\GameController.h" />
+    <ClInclude Include="App\Factory\GameFactory.h" />
+    <ClInclude Include="App\Factory\IGameFactory.h" />
+    <ClInclude Include="App\Flag\FlagManager.h" />
+    <ClInclude Include="App\Observer\GameSubject.h" />
+    <ClInclude Include="App\Observer\IGameObserver.h" />
+    <ClInclude Include="App\Opener\CellOpener.h" />
+    <ClInclude Include="Core\Board\BoardSize.h" />
+    <ClInclude Include="Core\Board\GameBoard.h" />
+    <ClInclude Include="Core\Cell\Cell.h" />
+    <ClInclude Include="Core\Cell\CellPosition.h" />
+    <ClInclude Include="Core\Cell\CellState.h" />
+    <ClInclude Include="Core\Cell\CellType.h" />
+    <ClInclude Include="Core\Game\GameDifficulty.h" />
+    <ClInclude Include="Core\Game\GameResult.h" />
+    <ClInclude Include="Core\Game\GameSettings.h" />
+    <ClInclude Include="Core\Game\GameState.h" />
+    <ClInclude Include="Core\Mine\MineCounter.h" />
+    <QtMoc Include="GUI\Widgets\BoardWidget.h" />
+    <QtMoc Include="GUI\Widgets\CellButton.h" />
+    <QtMoc Include="GUI\Widgets\StatusPanelWidget.h" />
+    <ClInclude Include="GUI\Window\MainWindow.h" />
+    <ClInclude Include="Utils\Config\SettingsProvider.h" />
+    <ClInclude Include="Utils\Generator\IMineGenerator.h" />
+    <ClInclude Include="Utils\Generator\RandomMineGenerator.h" />
+    <ClInclude Include="Utils\TImer\GameTimer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
