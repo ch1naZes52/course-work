@@ -4,13 +4,11 @@
 #include <QString>
 #include <vector>
 
-#include "../../App/Analyzer/GameAnalyzer.h"
-#include "../../App/Flag/FlagManager.h"
-#include "../../App/Opener/CellOpener.h"
-#include "../../Core/Board/GameBoard.h"
-#include "../../Core/Game/GameSettings.h"
-#include "../../Core/Mine/MineCounter.h"
-#include "../../Utils/Generator/RandomMineGenerator.h"
+#include "../../App/Command/OpenCellCommand.h"
+#include "../../App/Command/RestartGameCommand.h"
+#include "../../App/Command/ToggleFlagCommand.h"
+#include "../../App/Controller/GameController.h"
+#include "../../Core/Game/GameDifficulty.h"
 
 class CellButton;
 class QGridLayout;
@@ -23,26 +21,22 @@ public:
 
 public slots:
     void resetPreview();
+    void setDifficulty(GameDifficulty difficulty);
 
 signals:
     void flagCountChanged(int count);
     void openedCellCountChanged(int count);
     void gameStatusChanged(const QString& status);
+    void gameInfoChanged(int totalMines, const QString& mode);
 
 private:
-    GameSettings m_settings;
-    GameBoard m_board;
-    MineCounter m_mineCounter;
-    RandomMineGenerator m_mineGenerator;
-    GameAnalyzer m_gameAnalyzer;
-    CellOpener m_cellOpener;
-    FlagManager m_flagManager;
+    GameController m_controller;
     QGridLayout* m_gridLayout;
     std::vector<CellButton*> m_buttons;
-    bool m_minesGenerated;
-    bool m_gameFinished;
+    GameDifficulty m_currentDifficulty;
 
     void setupBoard();
+    void rebuildBoard();
     void clearBoard();
     void createButtons();
     void updateCounters();
@@ -50,6 +44,6 @@ private:
     void updateAllButtons();
     void openCell(const CellPosition& position);
     void toggleFlag(const CellPosition& position);
-    void analyzeGameState();
-    void finishGame(GameResult result);
+    void updateStatus();
+    QString currentModeText() const;
 };

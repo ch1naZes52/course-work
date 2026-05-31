@@ -2,6 +2,7 @@
 #include "../Widgets/BoardWidget.h"
 #include "../Widgets/StatusPanelWidget.h"
 
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -16,8 +17,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::setupWindow() {
     setWindowTitle("Minesweeper");
-    setMinimumSize(520, 620);
-    resize(560, 660);
+    setMinimumSize(620, 620);
+    resize(760, 720);
 }
 
 void MainWindow::setupCentralWidget() {
@@ -27,10 +28,14 @@ void MainWindow::setupCentralWidget() {
     m_statusPanel = new StatusPanelWidget(centralWidget);
     m_boardWidget = new BoardWidget(centralWidget);
 
+    QScrollArea* boardScrollArea = new QScrollArea(centralWidget);
+    boardScrollArea->setWidget(m_boardWidget);
+    boardScrollArea->setWidgetResizable(true);
+
     mainLayout->setContentsMargins(16, 16, 16, 16);
     mainLayout->setSpacing(12);
     mainLayout->addWidget(m_statusPanel);
-    mainLayout->addWidget(m_boardWidget, 1);
+    mainLayout->addWidget(boardScrollArea, 1);
 
     setCentralWidget(centralWidget);
 }
@@ -39,6 +44,8 @@ void MainWindow::setupConnections() {
     connect(m_boardWidget, &BoardWidget::flagCountChanged, m_statusPanel, &StatusPanelWidget::setPlacedFlags);
     connect(m_boardWidget, &BoardWidget::openedCellCountChanged, m_statusPanel, &StatusPanelWidget::setOpenedCells);
     connect(m_boardWidget, &BoardWidget::gameStatusChanged, m_statusPanel, &StatusPanelWidget::setStatus);
+    connect(m_boardWidget, &BoardWidget::gameInfoChanged, m_statusPanel, &StatusPanelWidget::setGameInfo);
     connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_boardWidget, &BoardWidget::resetPreview);
     connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_statusPanel, &StatusPanelWidget::reset);
+    connect(m_statusPanel, &StatusPanelWidget::difficultySelected, m_boardWidget, &BoardWidget::setDifficulty);
 }

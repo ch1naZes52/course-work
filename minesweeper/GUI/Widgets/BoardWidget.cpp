@@ -5,25 +5,34 @@
 
 BoardWidget::BoardWidget(QWidget* parent)
     : QWidget(parent),
-    m_settings(GameSettings::beginner()),
-    m_board(m_settings.boardSize()),
-    m_mineCounter(m_settings.mineCount()),
+    m_controller(),
     m_gridLayout(nullptr),
-    m_minesGenerated(false),
-    m_gameFinished(false) {
+    m_currentDifficulty(GameDifficulty::Beginner) {
     setupBoard();
 }
 
 void BoardWidget::resetPreview() {
-    m_board.reset();
-    m_mineCounter.reset(m_settings.mineCount());
-    m_minesGenerated = false;
-    m_gameFinished = false;
+    RestartGameCommand command(m_controller, m_currentDifficulty);
+    command.execute();
 
-    updateAllButtons();
+    rebuildBoard();
     updateCounters();
+    updateStatus();
 
-    emit gameStatusChanged("Готов к игре");
+    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
+}
+
+void BoardWidget::setDifficulty(GameDifficulty difficulty) {
+    m_currentDifficulty = difficulty;
+
+    RestartGameCommand command(m_controller, m_currentDifficulty);
+    command.execute();
+
+    rebuildBoard();
+    updateCounters();
+    updateStatus();
+
+    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
 }
 
 void BoardWidget::setupBoard() {
@@ -34,8 +43,14 @@ void BoardWidget::setupBoard() {
     createButtons();
     updateAllButtons();
     updateCounters();
+    updateStatus();
 
-    emit gameStatusChanged("Готов к игре");
+    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
+}
+
+void BoardWidget::rebuildBoard() {
+    createButtons();
+    updateAllButtons();
 }
 
 void BoardWidget::clearBoard() {
@@ -50,7 +65,7 @@ void BoardWidget::clearBoard() {
 void BoardWidget::createButtons() {
     clearBoard();
 
-    BoardSize size = m_settings.boardSize();
+    BoardSize size = m_controller.settings().boardSize();
 
     for (int row = 0; row < size.rows(); ++row) {
         for (int column = 0; column < size.columns(); ++column) {
@@ -67,96 +82,86 @@ void BoardWidget::createButtons() {
 }
 
 void BoardWidget::updateCounters() {
-    emit flagCountChanged(m_mineCounter.flaggedCells());
-    emit openedCellCountChanged(m_board.openedCellCount());
+    emit flagCountChanged(m_controller.mineCounter().flaggedCells());
+    emit openedCellCountChanged(m_controller.board().openedCellCount());
 }
 
 void BoardWidget::updateButton(const CellPosition& position) {
-    int index = position.row() * m_settings.boardSize().columns() + position.column();
+    int index = position.row() * m_controller.settings().boardSize().columns() + position.column();
 
     if (index < 0 || index >= static_cast<int>(m_buttons.size())) {
         return;
     }
 
-    m_buttons[index]->updateFromCell(m_board.cellAt(position));
+    m_buttons[index]->updateFromCell(m_controller.board().cellAt(position));
 }
 
 void BoardWidget::updateAllButtons() {
     for (CellButton* button : m_buttons) {
-        button->updateFromCell(m_board.cellAt(button->position()));
+        button->updateFromCell(m_controller.board().cellAt(button->position()));
     }
 }
 
 void BoardWidget::openCell(const CellPosition& position) {
-    if (m_gameFinished) {
-        return;
-    }
+    OpenCellCommand command(m_controller, position);
 
-    if (!m_board.isValidPosition(position)) {
-        return;
-    }
-
-    if (!m_minesGenerated) {
-        m_mineGenerator.generate(m_board, m_settings.mineCount(), position);
-        m_mineCounter.reset(m_settings.mineCount());
-        m_minesGenerated = true;
-        emit gameStatusChanged("Игра идет");
-    }
-
-    if (!m_cellOpener.open(m_board, position)) {
+    if (!command.execute()) {
+        updateStatus();
         return;
     }
 
     updateAllButtons();
     updateCounters();
-    analyzeGameState();
+    updateStatus();
 }
 
 void BoardWidget::toggleFlag(const CellPosition& position) {
-    if (m_gameFinished) {
-        return;
-    }
+    ToggleFlagCommand command(m_controller, position);
 
-    if (!m_minesGenerated) {
-        emit gameStatusChanged("Сначала откройте клетку");
-        return;
-    }
-
-    if (!m_flagManager.toggleFlag(m_board, m_mineCounter, position)) {
+    if (!command.execute()) {
+        updateStatus();
         return;
     }
 
     updateButton(position);
     updateCounters();
-
-    if (!m_gameFinished) {
-        emit gameStatusChanged("Игра идет");
-    }
+    updateStatus();
 }
 
-void BoardWidget::analyzeGameState() {
-    GameResult result = m_gameAnalyzer.analyze(m_board);
-
-    if (result != GameResult::None) {
-        finishGame(result);
-    }
-}
-
-void BoardWidget::finishGame(GameResult result) {
-    m_gameFinished = true;
-
-    if (result == GameResult::Defeat) {
-        m_board.revealAllMines();
-        updateAllButtons();
-        updateCounters();
-        emit gameStatusChanged("Поражение");
+void BoardWidget::updateStatus() {
+    if (m_controller.state() == GameState::NotStarted) {
+        emit gameStatusChanged("Готов к игре");
         return;
     }
 
-    if (result == GameResult::Victory) {
-        updateAllButtons();
-        updateCounters();
+    if (m_controller.state() == GameState::Running) {
+        emit gameStatusChanged("Игра идет");
+        return;
+    }
+
+    if (m_controller.state() == GameState::Won) {
         emit gameStatusChanged("Победа");
         return;
     }
+
+    if (m_controller.state() == GameState::Lost) {
+        emit gameStatusChanged("Поражение");
+        return;
+    }
+}
+
+QString BoardWidget::currentModeText() const {
+    if (m_currentDifficulty == GameDifficulty::Beginner) {
+        return "Новичок 9x9";
+    }
+
+    if (m_currentDifficulty == GameDifficulty::Intermediate) {
+        return "Любитель 16x16";
+    }
+
+    if (m_currentDifficulty == GameDifficulty::Expert) {
+        return "Эксперт 16x30";
+    }
+
+    return "Пользовательский";
 }

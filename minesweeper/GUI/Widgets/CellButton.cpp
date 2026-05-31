@@ -44,7 +44,7 @@ void CellButton::mousePressEvent(QMouseEvent* event) {
 }
 
 void CellButton::setupView() {
-    setMinimumSize(42, 42);
+    setMinimumSize(28, 28);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusPolicy(Qt::NoFocus);
 }
@@ -60,7 +60,7 @@ void CellButton::showOpened(const Cell& cell) {
 
     if (cell.isMine()) {
         setText("✹");
-        setStyleSheet("QPushButton { background-color: #d9534f; color: white; border: 1px solid #7a1f1c; font-size: 22px; font-weight: bold; }");
+        setStyleSheet("QPushButton { background-color: #d9534f; color: white; border: 1px solid #7a1f1c; font-size: 18px; font-weight: bold; }");
         return;
     }
 
@@ -71,11 +71,11 @@ void CellButton::showOpened(const Cell& cell) {
         setText("");
     }
 
-    setStyleSheet("QPushButton { background-color: #d6d6d6; border: 1px solid #9e9e9e; font-size: 18px; font-weight: bold; }");
+    setStyleSheet("QPushButton { background-color: #d6d6d6; border: 1px solid #9e9e9e; font-size: 15px; font-weight: bold; }");
 }
 
 void CellButton::showFlagged() {
     setEnabled(true);
     setText("⚑");
-    setStyleSheet("QPushButton { background-color: #f5d76e; border: 1px solid #8f8f8f; font-size: 20px; font-weight: bold; }");
+    setStyleSheet("QPushButton { background-color: #f5d76e; border: 1px solid #8f8f8f; font-size: 17px; font-weight: bold; }");
 }
