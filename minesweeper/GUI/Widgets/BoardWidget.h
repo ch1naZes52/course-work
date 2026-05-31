@@ -8,16 +8,18 @@
 #include "../../App/Command/RestartGameCommand.h"
 #include "../../App/Command/ToggleFlagCommand.h"
 #include "../../App/Controller/GameController.h"
+#include "../../App/Observer/IGameObserver.h"
 #include "../../Core/Game/GameDifficulty.h"
 
 class CellButton;
 class QGridLayout;
 
-class BoardWidget : public QWidget {
+class BoardWidget : public QWidget, public IGameObserver {
     Q_OBJECT
 
 public:
     explicit BoardWidget(QWidget* parent = nullptr);
+    ~BoardWidget() override;
 
 public slots:
     void resetPreview();
@@ -28,6 +30,7 @@ signals:
     void openedCellCountChanged(int count);
     void gameStatusChanged(const QString& status);
     void gameInfoChanged(int totalMines, const QString& mode);
+    void gameEventAdded(const QString& eventText);
 
 private:
     GameController m_controller;
@@ -39,11 +42,16 @@ private:
     void rebuildBoard();
     void clearBoard();
     void createButtons();
-    void updateCounters();
     void updateButton(const CellPosition& position);
     void updateAllButtons();
     void openCell(const CellPosition& position);
     void toggleFlag(const CellPosition& position);
-    void updateStatus();
-    QString currentModeText() const;
+    QString modeText(const GameSettings& settings) const;
+    QString statusText(GameState state, GameResult result) const;
+
+    void onBoardChanged(const GameBoard& board) override;
+    void onCountersChanged(const MineCounter& mineCounter, int openedCells) override;
+    void onGameStatusChanged(GameState state, GameResult result) override;
+    void onGameInfoChanged(const GameSettings& settings) override;
+    void onGameEvent(const std::string& eventText) override;
 };

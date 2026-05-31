@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QString>
@@ -17,6 +18,7 @@ StatusPanelWidget::StatusPanelWidget(QWidget* parent)
     m_statusLabel(nullptr),
     m_difficultyComboBox(nullptr),
     m_newGameButton(nullptr),
+    m_eventList(nullptr),
     m_totalMines(10),
     m_placedFlags(0),
     m_openedCells(0),
@@ -47,10 +49,19 @@ void StatusPanelWidget::setGameInfo(int totalMines, const QString& mode) {
     updateLabels();
 }
 
+void StatusPanelWidget::addEvent(const QString& eventText) {
+    m_eventList->insertItem(0, eventText);
+
+    while (m_eventList->count() > 6) {
+        delete m_eventList->takeItem(m_eventList->count() - 1);
+    }
+}
+
 void StatusPanelWidget::reset() {
     m_placedFlags = 0;
     m_openedCells = 0;
     m_status = "Готов к игре";
+    m_eventList->clear();
     updateLabels();
 }
 
@@ -58,9 +69,12 @@ void StatusPanelWidget::setupLayout() {
     QFrame* panel = new QFrame(this);
     panel->setFrameShape(QFrame::StyledPanel);
 
-    QHBoxLayout* panelLayout = new QHBoxLayout(panel);
-    panelLayout->setContentsMargins(12, 10, 12, 10);
-    panelLayout->setSpacing(10);
+    QVBoxLayout* panelRootLayout = new QVBoxLayout(panel);
+    panelRootLayout->setContentsMargins(12, 10, 12, 10);
+    panelRootLayout->setSpacing(8);
+
+    QHBoxLayout* topLayout = new QHBoxLayout();
+    topLayout->setSpacing(10);
 
     m_minesLabel = new QLabel(panel);
     m_timerLabel = new QLabel(panel);
@@ -69,6 +83,7 @@ void StatusPanelWidget::setupLayout() {
     m_statusLabel = new QLabel(panel);
     m_difficultyComboBox = new QComboBox(panel);
     m_newGameButton = new QPushButton("Новая игра", panel);
+    m_eventList = new QListWidget(panel);
 
     m_minesLabel->setMinimumWidth(80);
     m_timerLabel->setMinimumWidth(80);
@@ -76,17 +91,24 @@ void StatusPanelWidget::setupLayout() {
     m_modeLabel->setMinimumWidth(105);
     m_statusLabel->setMinimumWidth(90);
     m_difficultyComboBox->setMinimumWidth(110);
+    m_eventList->setMaximumHeight(118);
 
     setupDifficultySelector();
 
-    panelLayout->addWidget(m_minesLabel);
-    panelLayout->addWidget(m_timerLabel);
-    panelLayout->addWidget(m_openedLabel);
-    panelLayout->addWidget(m_modeLabel);
-    panelLayout->addWidget(m_difficultyComboBox);
-    panelLayout->addStretch();
-    panelLayout->addWidget(m_statusLabel);
-    panelLayout->addWidget(m_newGameButton);
+    topLayout->addWidget(m_minesLabel);
+    topLayout->addWidget(m_timerLabel);
+    topLayout->addWidget(m_openedLabel);
+    topLayout->addWidget(m_modeLabel);
+    topLayout->addWidget(m_difficultyComboBox);
+    topLayout->addStretch();
+    topLayout->addWidget(m_statusLabel);
+    topLayout->addWidget(m_newGameButton);
+
+    QLabel* eventTitleLabel = new QLabel("Журнал событий", panel);
+
+    panelRootLayout->addLayout(topLayout);
+    panelRootLayout->addWidget(eventTitleLabel);
+    panelRootLayout->addWidget(m_eventList);
 
     QVBoxLayout* rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(0, 0, 0, 0);
@@ -98,6 +120,7 @@ void StatusPanelWidget::setupLayout() {
         m_placedFlags = 0;
         m_openedCells = 0;
         m_status = "Готов к игре";
+        m_eventList->clear();
         emit difficultySelected(selectedDifficulty());
         updateLabels();
         });

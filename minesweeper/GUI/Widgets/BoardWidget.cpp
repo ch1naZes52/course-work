@@ -8,18 +8,17 @@ BoardWidget::BoardWidget(QWidget* parent)
     m_controller(),
     m_gridLayout(nullptr),
     m_currentDifficulty(GameDifficulty::Beginner) {
+    m_controller.addObserver(this);
     setupBoard();
+}
+
+BoardWidget::~BoardWidget() {
+    m_controller.removeObserver(this);
 }
 
 void BoardWidget::resetPreview() {
     RestartGameCommand command(m_controller, m_currentDifficulty);
     command.execute();
-
-    rebuildBoard();
-    updateCounters();
-    updateStatus();
-
-    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
 }
 
 void BoardWidget::setDifficulty(GameDifficulty difficulty) {
@@ -27,12 +26,6 @@ void BoardWidget::setDifficulty(GameDifficulty difficulty) {
 
     RestartGameCommand command(m_controller, m_currentDifficulty);
     command.execute();
-
-    rebuildBoard();
-    updateCounters();
-    updateStatus();
-
-    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
 }
 
 void BoardWidget::setupBoard() {
@@ -42,10 +35,12 @@ void BoardWidget::setupBoard() {
 
     createButtons();
     updateAllButtons();
-    updateCounters();
-    updateStatus();
 
-    emit gameInfoChanged(m_controller.settings().mineCount(), currentModeText());
+    emit flagCountChanged(m_controller.mineCounter().flaggedCells());
+    emit openedCellCountChanged(m_controller.board().openedCellCount());
+    emit gameStatusChanged(statusText(m_controller.state(), m_controller.result()));
+    emit gameInfoChanged(m_controller.settings().mineCount(), modeText(m_controller.settings()));
+    emit gameEventAdded("Интерфейс подключен к наблюдателю игры");
 }
 
 void BoardWidget::rebuildBoard() {
@@ -81,11 +76,6 @@ void BoardWidget::createButtons() {
     }
 }
 
-void BoardWidget::updateCounters() {
-    emit flagCountChanged(m_controller.mineCounter().flaggedCells());
-    emit openedCellCountChanged(m_controller.board().openedCellCount());
-}
-
 void BoardWidget::updateButton(const CellPosition& position) {
     int index = position.row() * m_controller.settings().boardSize().columns() + position.column();
 
@@ -104,64 +94,69 @@ void BoardWidget::updateAllButtons() {
 
 void BoardWidget::openCell(const CellPosition& position) {
     OpenCellCommand command(m_controller, position);
-
-    if (!command.execute()) {
-        updateStatus();
-        return;
-    }
-
-    updateAllButtons();
-    updateCounters();
-    updateStatus();
+    command.execute();
 }
 
 void BoardWidget::toggleFlag(const CellPosition& position) {
     ToggleFlagCommand command(m_controller, position);
-
-    if (!command.execute()) {
-        updateStatus();
-        return;
-    }
-
-    updateButton(position);
-    updateCounters();
-    updateStatus();
+    command.execute();
 }
 
-void BoardWidget::updateStatus() {
-    if (m_controller.state() == GameState::NotStarted) {
-        emit gameStatusChanged("Готов к игре");
-        return;
-    }
-
-    if (m_controller.state() == GameState::Running) {
-        emit gameStatusChanged("Игра идет");
-        return;
-    }
-
-    if (m_controller.state() == GameState::Won) {
-        emit gameStatusChanged("Победа");
-        return;
-    }
-
-    if (m_controller.state() == GameState::Lost) {
-        emit gameStatusChanged("Поражение");
-        return;
-    }
-}
-
-QString BoardWidget::currentModeText() const {
-    if (m_currentDifficulty == GameDifficulty::Beginner) {
+QString BoardWidget::modeText(const GameSettings& settings) const {
+    if (settings.difficulty() == GameDifficulty::Beginner) {
         return "Новичок 9x9";
     }
 
-    if (m_currentDifficulty == GameDifficulty::Intermediate) {
+    if (settings.difficulty() == GameDifficulty::Intermediate) {
         return "Любитель 16x16";
     }
 
-    if (m_currentDifficulty == GameDifficulty::Expert) {
+    if (settings.difficulty() == GameDifficulty::Expert) {
         return "Эксперт 16x30";
     }
 
     return "Пользовательский";
+}
+
+QString BoardWidget::statusText(GameState state, GameResult result) const {
+    if (state == GameState::NotStarted) {
+        return "Готов к игре";
+    }
+
+    if (state == GameState::Running) {
+        return "Игра идет";
+    }
+
+    if (state == GameState::Won || result == GameResult::Victory) {
+        return "Победа";
+    }
+
+    if (state == GameState::Lost || result == GameResult::Defeat) {
+        return "Поражение";
+    }
+
+    return "Готов к игре";
+}
+
+void BoardWidget::onBoardChanged(const GameBoard& board) {
+    Q_UNUSED(board)
+        updateAllButtons();
+}
+
+void BoardWidget::onCountersChanged(const MineCounter& mineCounter, int openedCells) {
+    emit flagCountChanged(mineCounter.flaggedCells());
+    emit openedCellCountChanged(openedCells);
+}
+
+void BoardWidget::onGameStatusChanged(GameState state, GameResult result) {
+    emit gameStatusChanged(statusText(state, result));
+}
+
+void BoardWidget::onGameInfoChanged(const GameSettings& settings) {
+    rebuildBoard();
+    emit gameInfoChanged(settings.mineCount(), modeText(settings));
+}
+
+void BoardWidget::onGameEvent(const std::string& eventText) {
+    emit gameEventAdded(QString::fromStdString(eventText));
 }

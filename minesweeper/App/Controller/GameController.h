@@ -3,6 +3,7 @@
 #include "../Analyzer/GameAnalyzer.h"
 #include "../Factory/GameFactory.h"
 #include "../Flag/FlagManager.h"
+#include "../Observer/GameSubject.h"
 #include "../Opener/CellOpener.h"
 #include "../../Core/Board/GameBoard.h"
 #include "../../Core/Game/GameResult.h"
@@ -11,7 +12,7 @@
 #include "../../Core/Mine/MineCounter.h"
 #include "../../Utils/Generator/RandomMineGenerator.h"
 
-class GameController {
+class GameController : public GameSubject {
 public:
     GameController();
 
@@ -42,4 +43,6 @@ private:
     void generateMinesIfNeeded(const CellPosition& firstMove);
     void analyzeGameState();
     void finishGame(GameResult result);
+    void notifyFullState();
+    std::string positionText(const CellPosition& position) const;
 };

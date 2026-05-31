@@ -7,6 +7,7 @@
 class QLabel;
 class QPushButton;
 class QComboBox;
+class QListWidget;
 
 class StatusPanelWidget : public QWidget {
     Q_OBJECT
@@ -19,6 +20,7 @@ public slots:
     void setOpenedCells(int count);
     void setStatus(const QString& status);
     void setGameInfo(int totalMines, const QString& mode);
+    void addEvent(const QString& eventText);
     void reset();
 
 signals:
@@ -33,6 +35,7 @@ private:
     QLabel* m_statusLabel;
     QComboBox* m_difficultyComboBox;
     QPushButton* m_newGameButton;
+    QListWidget* m_eventList;
 
     int m_totalMines;
     int m_placedFlags;
