@@ -1,11 +1,15 @@
 ﻿#pragma once
 
 #include <QWidget>
+#include <QString>
 #include <vector>
 
 #include "../../App/Analyzer/GameAnalyzer.h"
+#include "../../App/Flag/FlagManager.h"
+#include "../../App/Opener/CellOpener.h"
 #include "../../Core/Board/GameBoard.h"
 #include "../../Core/Game/GameSettings.h"
+#include "../../Core/Mine/MineCounter.h"
 #include "../../Utils/Generator/RandomMineGenerator.h"
 
 class CellButton;
@@ -28,8 +32,11 @@ signals:
 private:
     GameSettings m_settings;
     GameBoard m_board;
+    MineCounter m_mineCounter;
     RandomMineGenerator m_mineGenerator;
     GameAnalyzer m_gameAnalyzer;
+    CellOpener m_cellOpener;
+    FlagManager m_flagManager;
     QGridLayout* m_gridLayout;
     std::vector<CellButton*> m_buttons;
     bool m_minesGenerated;

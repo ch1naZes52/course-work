@@ -2,12 +2,12 @@
 #include "CellButton.h"
 
 #include <QGridLayout>
-#include <QString>
 
 BoardWidget::BoardWidget(QWidget* parent)
     : QWidget(parent),
     m_settings(GameSettings::beginner()),
     m_board(m_settings.boardSize()),
+    m_mineCounter(m_settings.mineCount()),
     m_gridLayout(nullptr),
     m_minesGenerated(false),
     m_gameFinished(false) {
@@ -16,6 +16,7 @@ BoardWidget::BoardWidget(QWidget* parent)
 
 void BoardWidget::resetPreview() {
     m_board.reset();
+    m_mineCounter.reset(m_settings.mineCount());
     m_minesGenerated = false;
     m_gameFinished = false;
 
@@ -66,7 +67,7 @@ void BoardWidget::createButtons() {
 }
 
 void BoardWidget::updateCounters() {
-    emit flagCountChanged(m_board.flaggedCellCount());
+    emit flagCountChanged(m_mineCounter.flaggedCells());
     emit openedCellCountChanged(m_board.openedCellCount());
 }
 
@@ -97,17 +98,16 @@ void BoardWidget::openCell(const CellPosition& position) {
 
     if (!m_minesGenerated) {
         m_mineGenerator.generate(m_board, m_settings.mineCount(), position);
+        m_mineCounter.reset(m_settings.mineCount());
         m_minesGenerated = true;
         emit gameStatusChanged("Игра идет");
     }
 
-    Cell& cell = m_board.cellAt(position);
-
-    if (!cell.open()) {
+    if (!m_cellOpener.open(m_board, position)) {
         return;
     }
 
-    updateButton(position);
+    updateAllButtons();
     updateCounters();
     analyzeGameState();
 }
@@ -117,18 +117,21 @@ void BoardWidget::toggleFlag(const CellPosition& position) {
         return;
     }
 
-    if (!m_board.isValidPosition(position)) {
+    if (!m_minesGenerated) {
+        emit gameStatusChanged("Сначала откройте клетку");
         return;
     }
 
-    Cell& cell = m_board.cellAt(position);
-
-    if (!cell.toggleFlag()) {
+    if (!m_flagManager.toggleFlag(m_board, m_mineCounter, position)) {
         return;
     }
 
     updateButton(position);
     updateCounters();
+
+    if (!m_gameFinished) {
+        emit gameStatusChanged("Игра идет");
+    }
 }
 
 void BoardWidget::analyzeGameState() {
