@@ -1,8 +1,8 @@
 ﻿#include "CellButton.h"
 
 #include <QMouseEvent>
-#include <QString>
 #include <QSizePolicy>
+#include <QString>
 
 CellButton::CellButton(const CellPosition& position, QWidget* parent)
     : QPushButton(parent),
@@ -57,6 +57,12 @@ void CellButton::showClosed() {
 
 void CellButton::showOpened(const Cell& cell) {
     setEnabled(true);
+
+    if (cell.isMine()) {
+        setText("✹");
+        setStyleSheet("QPushButton { background-color: #d9534f; color: white; border: 1px solid #7a1f1c; font-size: 22px; font-weight: bold; }");
+        return;
+    }
 
     if (cell.isNumber()) {
         setText(QString::number(cell.adjacentMines()));

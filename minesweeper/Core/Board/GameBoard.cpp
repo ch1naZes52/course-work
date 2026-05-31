@@ -130,6 +130,14 @@ void GameBoard::reset() {
     }
 }
 
+void GameBoard::revealAllMines() {
+    for (Cell* cell : cells()) {
+        if (cell->isMine()) {
+            cell->reveal();
+        }
+    }
+}
+
 int GameBoard::openedCellCount() const {
     int count = 0;
 
@@ -159,6 +167,18 @@ int GameBoard::closedCellCount() const {
 
     for (const Cell* cell : cells()) {
         if (cell->isClosed()) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+int GameBoard::mineCount() const {
+    int count = 0;
+
+    for (const Cell* cell : cells()) {
+        if (cell->isMine()) {
             ++count;
         }
     }

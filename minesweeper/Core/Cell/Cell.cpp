@@ -94,6 +94,15 @@ bool Cell::open() {
     return true;
 }
 
+bool Cell::reveal() {
+    if (m_state == CellState::Opened) {
+        return false;
+    }
+
+    m_state = CellState::Opened;
+    return true;
+}
+
 bool Cell::toggleFlag() {
     if (m_state == CellState::Closed) {
         m_state = CellState::Flagged;

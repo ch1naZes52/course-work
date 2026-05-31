@@ -28,10 +28,12 @@ public:
 
     void resize(const BoardSize& size);
     void reset();
+    void revealAllMines();
 
     int openedCellCount() const;
     int flaggedCellCount() const;
     int closedCellCount() const;
+    int mineCount() const;
 
 private:
     BoardSize m_size;

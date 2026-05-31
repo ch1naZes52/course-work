@@ -2,19 +2,27 @@
 #include "CellButton.h"
 
 #include <QGridLayout>
+#include <QString>
 
 BoardWidget::BoardWidget(QWidget* parent)
     : QWidget(parent),
     m_settings(GameSettings::beginner()),
     m_board(m_settings.boardSize()),
-    m_gridLayout(nullptr) {
+    m_gridLayout(nullptr),
+    m_minesGenerated(false),
+    m_gameFinished(false) {
     setupBoard();
 }
 
 void BoardWidget::resetPreview() {
     m_board.reset();
+    m_minesGenerated = false;
+    m_gameFinished = false;
+
     updateAllButtons();
     updateCounters();
+
+    emit gameStatusChanged("Готов к игре");
 }
 
 void BoardWidget::setupBoard() {
@@ -25,6 +33,8 @@ void BoardWidget::setupBoard() {
     createButtons();
     updateAllButtons();
     updateCounters();
+
+    emit gameStatusChanged("Готов к игре");
 }
 
 void BoardWidget::clearBoard() {
@@ -77,8 +87,18 @@ void BoardWidget::updateAllButtons() {
 }
 
 void BoardWidget::openCell(const CellPosition& position) {
+    if (m_gameFinished) {
+        return;
+    }
+
     if (!m_board.isValidPosition(position)) {
         return;
+    }
+
+    if (!m_minesGenerated) {
+        m_mineGenerator.generate(m_board, m_settings.mineCount(), position);
+        m_minesGenerated = true;
+        emit gameStatusChanged("Игра идет");
     }
 
     Cell& cell = m_board.cellAt(position);
@@ -89,9 +109,14 @@ void BoardWidget::openCell(const CellPosition& position) {
 
     updateButton(position);
     updateCounters();
+    analyzeGameState();
 }
 
 void BoardWidget::toggleFlag(const CellPosition& position) {
+    if (m_gameFinished) {
+        return;
+    }
+
     if (!m_board.isValidPosition(position)) {
         return;
     }
@@ -104,4 +129,31 @@ void BoardWidget::toggleFlag(const CellPosition& position) {
 
     updateButton(position);
     updateCounters();
+}
+
+void BoardWidget::analyzeGameState() {
+    GameResult result = m_gameAnalyzer.analyze(m_board);
+
+    if (result != GameResult::None) {
+        finishGame(result);
+    }
+}
+
+void BoardWidget::finishGame(GameResult result) {
+    m_gameFinished = true;
+
+    if (result == GameResult::Defeat) {
+        m_board.revealAllMines();
+        updateAllButtons();
+        updateCounters();
+        emit gameStatusChanged("Поражение");
+        return;
+    }
+
+    if (result == GameResult::Victory) {
+        updateAllButtons();
+        updateCounters();
+        emit gameStatusChanged("Победа");
+        return;
+    }
 }

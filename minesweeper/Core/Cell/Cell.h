@@ -29,6 +29,7 @@ public:
     void setAdjacentMines(int count);
 
     bool open();
+    bool reveal();
     bool toggleFlag();
     bool placeFlag();
     bool removeFlag();

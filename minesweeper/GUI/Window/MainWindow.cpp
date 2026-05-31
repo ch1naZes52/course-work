@@ -38,6 +38,7 @@ void MainWindow::setupCentralWidget() {
 void MainWindow::setupConnections() {
     connect(m_boardWidget, &BoardWidget::flagCountChanged, m_statusPanel, &StatusPanelWidget::setPlacedFlags);
     connect(m_boardWidget, &BoardWidget::openedCellCountChanged, m_statusPanel, &StatusPanelWidget::setOpenedCells);
+    connect(m_boardWidget, &BoardWidget::gameStatusChanged, m_statusPanel, &StatusPanelWidget::setStatus);
     connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_boardWidget, &BoardWidget::resetPreview);
     connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_statusPanel, &StatusPanelWidget::reset);
 }
