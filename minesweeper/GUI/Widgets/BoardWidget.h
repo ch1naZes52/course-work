@@ -10,6 +10,7 @@
 #include "../../App/Controller/GameController.h"
 #include "../../App/Observer/IGameObserver.h"
 #include "../../Core/Game/GameDifficulty.h"
+#include "../../Utils/Config/SettingsProvider.h"
 
 class CellButton;
 class QGridLayout;
@@ -34,6 +35,7 @@ signals:
 
 private:
     GameController m_controller;
+    SettingsProvider m_settingsProvider;
     QGridLayout* m_gridLayout;
     std::vector<CellButton*> m_buttons;
     GameDifficulty m_currentDifficulty;
@@ -46,7 +48,6 @@ private:
     void updateAllButtons();
     void openCell(const CellPosition& position);
     void toggleFlag(const CellPosition& position);
-    QString modeText(const GameSettings& settings) const;
     QString statusText(GameState state, GameResult result) const;
 
     void onBoardChanged(const GameBoard& board) override;

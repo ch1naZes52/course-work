@@ -3,6 +3,8 @@
 #include <QWidget>
 
 #include "../../Core/Game/GameDifficulty.h"
+#include "../../Utils/Config/SettingsProvider.h"
+#include "../../Utils/Timer/GameTimer.h"
 
 class QLabel;
 class QPushButton;
@@ -37,14 +39,20 @@ private:
     QPushButton* m_newGameButton;
     QListWidget* m_eventList;
 
+    SettingsProvider m_settingsProvider;
+    GameTimer* m_gameTimer;
     int m_totalMines;
     int m_placedFlags;
     int m_openedCells;
+    int m_elapsedSeconds;
     QString m_status;
     QString m_mode;
 
     void setupLayout();
     void setupDifficultySelector();
+    void setupTimer();
     void updateLabels();
+    void updateTimerByStatus();
+    QString formattedTime() const;
     GameDifficulty selectedDifficulty() const;
 };

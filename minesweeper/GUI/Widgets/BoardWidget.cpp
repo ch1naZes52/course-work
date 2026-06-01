@@ -6,6 +6,7 @@
 BoardWidget::BoardWidget(QWidget* parent)
     : QWidget(parent),
     m_controller(),
+    m_settingsProvider(),
     m_gridLayout(nullptr),
     m_currentDifficulty(GameDifficulty::Beginner) {
     m_controller.addObserver(this);
@@ -39,7 +40,7 @@ void BoardWidget::setupBoard() {
     emit flagCountChanged(m_controller.mineCounter().flaggedCells());
     emit openedCellCountChanged(m_controller.board().openedCellCount());
     emit gameStatusChanged(statusText(m_controller.state(), m_controller.result()));
-    emit gameInfoChanged(m_controller.settings().mineCount(), modeText(m_controller.settings()));
+    emit gameInfoChanged(m_controller.settings().mineCount(), m_settingsProvider.modeText(m_controller.settings()));
     emit gameEventAdded("Интерфейс подключен к наблюдателю игры");
 }
 
@@ -102,22 +103,6 @@ void BoardWidget::toggleFlag(const CellPosition& position) {
     command.execute();
 }
 
-QString BoardWidget::modeText(const GameSettings& settings) const {
-    if (settings.difficulty() == GameDifficulty::Beginner) {
-        return "Новичок 9x9";
-    }
-
-    if (settings.difficulty() == GameDifficulty::Intermediate) {
-        return "Любитель 16x16";
-    }
-
-    if (settings.difficulty() == GameDifficulty::Expert) {
-        return "Эксперт 16x30";
-    }
-
-    return "Пользовательский";
-}
-
 QString BoardWidget::statusText(GameState state, GameResult result) const {
     if (state == GameState::NotStarted) {
         return "Готов к игре";
@@ -154,7 +139,7 @@ void BoardWidget::onGameStatusChanged(GameState state, GameResult result) {
 
 void BoardWidget::onGameInfoChanged(const GameSettings& settings) {
     rebuildBoard();
-    emit gameInfoChanged(settings.mineCount(), modeText(settings));
+    emit gameInfoChanged(settings.mineCount(), m_settingsProvider.modeText(settings));
 }
 
 void BoardWidget::onGameEvent(const std::string& eventText) {

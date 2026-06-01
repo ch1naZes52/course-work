@@ -19,12 +19,15 @@ StatusPanelWidget::StatusPanelWidget(QWidget* parent)
     m_difficultyComboBox(nullptr),
     m_newGameButton(nullptr),
     m_eventList(nullptr),
+    m_gameTimer(nullptr),
     m_totalMines(10),
     m_placedFlags(0),
     m_openedCells(0),
+    m_elapsedSeconds(0),
     m_status("Готов к игре"),
     m_mode("Новичок 9x9") {
     setupLayout();
+    setupTimer();
     updateLabels();
 }
 
@@ -40,6 +43,7 @@ void StatusPanelWidget::setOpenedCells(int count) {
 
 void StatusPanelWidget::setStatus(const QString& status) {
     m_status = status;
+    updateTimerByStatus();
     updateLabels();
 }
 
@@ -60,8 +64,10 @@ void StatusPanelWidget::addEvent(const QString& eventText) {
 void StatusPanelWidget::reset() {
     m_placedFlags = 0;
     m_openedCells = 0;
+    m_elapsedSeconds = 0;
     m_status = "Готов к игре";
     m_eventList->clear();
+    m_gameTimer->reset();
     updateLabels();
 }
 
@@ -119,25 +125,65 @@ void StatusPanelWidget::setupLayout() {
     connect(m_difficultyComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
         m_placedFlags = 0;
         m_openedCells = 0;
+        m_elapsedSeconds = 0;
         m_status = "Готов к игре";
         m_eventList->clear();
+        m_gameTimer->reset();
         emit difficultySelected(selectedDifficulty());
         updateLabels();
         });
 }
 
 void StatusPanelWidget::setupDifficultySelector() {
-    m_difficultyComboBox->addItem("Новичок");
-    m_difficultyComboBox->addItem("Любитель");
-    m_difficultyComboBox->addItem("Эксперт");
+    for (GameDifficulty difficulty : m_settingsProvider.difficulties()) {
+        m_difficultyComboBox->addItem(m_settingsProvider.difficultyName(difficulty));
+    }
+}
+
+void StatusPanelWidget::setupTimer() {
+    m_gameTimer = new GameTimer(this);
+
+    connect(m_gameTimer, &GameTimer::secondsChanged, this, [this](int seconds) {
+        m_elapsedSeconds = seconds;
+        updateLabels();
+        });
 }
 
 void StatusPanelWidget::updateLabels() {
     m_minesLabel->setText(QString("Мины: %1").arg(m_totalMines - m_placedFlags));
-    m_timerLabel->setText("Время: 000");
+    m_timerLabel->setText(QString("Время: %1").arg(formattedTime()));
     m_openedLabel->setText(QString("Открыто: %1").arg(m_openedCells));
     m_modeLabel->setText(m_mode);
     m_statusLabel->setText(m_status);
+}
+
+void StatusPanelWidget::updateTimerByStatus() {
+    if (m_status == "Игра идет") {
+        m_gameTimer->start();
+        return;
+    }
+
+    if (m_status == "Победа" || m_status == "Поражение") {
+        m_gameTimer->stop();
+        return;
+    }
+
+    if (m_status == "Готов к игре") {
+        m_gameTimer->reset();
+        return;
+    }
+}
+
+QString StatusPanelWidget::formattedTime() const {
+    if (m_elapsedSeconds < 10) {
+        return QString("00%1").arg(m_elapsedSeconds);
+    }
+
+    if (m_elapsedSeconds < 100) {
+        return QString("0%1").arg(m_elapsedSeconds);
+    }
+
+    return QString::number(m_elapsedSeconds);
 }
 
 GameDifficulty StatusPanelWidget::selectedDifficulty() const {
