@@ -8,7 +8,8 @@ BoardWidget::BoardWidget(QWidget* parent)
     m_controller(),
     m_settingsProvider(),
     m_gridLayout(nullptr),
-    m_currentDifficulty(GameDifficulty::Beginner) {
+    m_currentDifficulty(GameDifficulty::Beginner),
+    m_boardLocked(false) {
     m_controller.addObserver(this);
     setupBoard();
 }
@@ -36,6 +37,7 @@ void BoardWidget::setupBoard() {
 
     createButtons();
     updateAllButtons();
+    setBoardLocked(false);
 
     emit flagCountChanged(m_controller.mineCounter().flaggedCells());
     emit openedCellCountChanged(m_controller.board().openedCellCount());
@@ -47,6 +49,7 @@ void BoardWidget::setupBoard() {
 void BoardWidget::rebuildBoard() {
     createButtons();
     updateAllButtons();
+    setBoardLocked(false);
 }
 
 void BoardWidget::clearBoard() {
@@ -85,11 +88,21 @@ void BoardWidget::updateButton(const CellPosition& position) {
     }
 
     m_buttons[index]->updateFromCell(m_controller.board().cellAt(position));
+    m_buttons[index]->setLocked(m_boardLocked);
 }
 
 void BoardWidget::updateAllButtons() {
     for (CellButton* button : m_buttons) {
         button->updateFromCell(m_controller.board().cellAt(button->position()));
+        button->setLocked(m_boardLocked);
+    }
+}
+
+void BoardWidget::setBoardLocked(bool locked) {
+    m_boardLocked = locked;
+
+    for (CellButton* button : m_buttons) {
+        button->setLocked(locked);
     }
 }
 
@@ -134,6 +147,9 @@ void BoardWidget::onCountersChanged(const MineCounter& mineCounter, int openedCe
 }
 
 void BoardWidget::onGameStatusChanged(GameState state, GameResult result) {
+    bool finished = state == GameState::Won || state == GameState::Lost;
+    setBoardLocked(finished);
+
     emit gameStatusChanged(statusText(state, result));
 }
 
@@ -143,5 +159,5 @@ void BoardWidget::onGameInfoChanged(const GameSettings& settings) {
 }
 
 void BoardWidget::onGameEvent(const std::string& eventText) {
-    emit gameEventAdded(QString::fromStdString(eventText));
+    emit gameEventAdded(QString::fromUtf8(eventText.c_str()));
 }

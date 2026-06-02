@@ -13,6 +13,7 @@ public:
     const CellPosition& position() const;
 
     void updateFromCell(const Cell& cell);
+    void setLocked(bool locked);
 
 signals:
     void openRequested(const CellPosition& position);
@@ -23,9 +24,12 @@ protected:
 
 private:
     CellPosition m_position;
+    bool m_locked;
 
     void setupView();
     void showClosed();
     void showOpened(const Cell& cell);
     void showFlagged();
+    void updateCursor();
+    QString numberStyle(int number) const;
 };

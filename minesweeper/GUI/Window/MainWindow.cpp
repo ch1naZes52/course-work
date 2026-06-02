@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget* parent)
 void MainWindow::setupWindow() {
     setWindowTitle("Minesweeper");
     setMinimumSize(680, 700);
-    resize(820, 780);
+    resize(840, 800);
 }
 
 void MainWindow::setupCentralWidget() {
@@ -41,12 +41,12 @@ void MainWindow::setupCentralWidget() {
 }
 
 void MainWindow::setupConnections() {
+    connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_statusPanel, &StatusPanelWidget::reset);
+    connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_boardWidget, &BoardWidget::resetPreview);
+    connect(m_statusPanel, &StatusPanelWidget::difficultySelected, m_boardWidget, &BoardWidget::setDifficulty);
     connect(m_boardWidget, &BoardWidget::flagCountChanged, m_statusPanel, &StatusPanelWidget::setPlacedFlags);
     connect(m_boardWidget, &BoardWidget::openedCellCountChanged, m_statusPanel, &StatusPanelWidget::setOpenedCells);
     connect(m_boardWidget, &BoardWidget::gameStatusChanged, m_statusPanel, &StatusPanelWidget::setStatus);
     connect(m_boardWidget, &BoardWidget::gameInfoChanged, m_statusPanel, &StatusPanelWidget::setGameInfo);
     connect(m_boardWidget, &BoardWidget::gameEventAdded, m_statusPanel, &StatusPanelWidget::addEvent);
-    connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_boardWidget, &BoardWidget::resetPreview);
-    connect(m_statusPanel, &StatusPanelWidget::newGameRequested, m_statusPanel, &StatusPanelWidget::reset);
-    connect(m_statusPanel, &StatusPanelWidget::difficultySelected, m_boardWidget, &BoardWidget::setDifficulty);
 }

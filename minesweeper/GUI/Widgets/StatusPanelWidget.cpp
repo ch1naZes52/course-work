@@ -16,6 +16,7 @@ StatusPanelWidget::StatusPanelWidget(QWidget* parent)
     m_openedLabel(nullptr),
     m_modeLabel(nullptr),
     m_statusLabel(nullptr),
+    m_hintLabel(nullptr),
     m_difficultyComboBox(nullptr),
     m_newGameButton(nullptr),
     m_eventList(nullptr),
@@ -56,7 +57,7 @@ void StatusPanelWidget::setGameInfo(int totalMines, const QString& mode) {
 void StatusPanelWidget::addEvent(const QString& eventText) {
     m_eventList->insertItem(0, eventText);
 
-    while (m_eventList->count() > 6) {
+    while (m_eventList->count() > 7) {
         delete m_eventList->takeItem(m_eventList->count() - 1);
     }
 }
@@ -73,46 +74,136 @@ void StatusPanelWidget::reset() {
 
 void StatusPanelWidget::setupLayout() {
     QFrame* panel = new QFrame(this);
-    panel->setFrameShape(QFrame::StyledPanel);
+    panel->setObjectName("statusPanel");
+    panel->setFrameShape(QFrame::NoFrame);
+    panel->setStyleSheet(
+        "#statusPanel {"
+        " background-color: #20242c;"
+        " border: 1px solid #3a3f4b;"
+        " border-radius: 8px;"
+        "}"
+        "QLabel {"
+        " color: #f3f4f6;"
+        " background-color: transparent;"
+        " border: none;"
+        "}"
+        "QLabel#infoLabel {"
+        " color: #111827;"
+        " background-color: #f9fafb;"
+        " border: 1px solid #d1d5db;"
+        " border-radius: 5px;"
+        " padding: 5px 8px;"
+        " font-weight: bold;"
+        "}"
+        "QLabel#hintLabel {"
+        " color: #cbd5e1;"
+        " font-size: 12px;"
+        "}"
+        "QLabel#eventTitleLabel {"
+        " color: #f9fafb;"
+        " font-weight: bold;"
+        "}"
+        "QComboBox {"
+        " color: #111827;"
+        " background-color: #ffffff;"
+        " border: 1px solid #9ca3af;"
+        " border-radius: 5px;"
+        " padding: 5px 8px;"
+        " font-weight: bold;"
+        "}"
+        "QComboBox::drop-down {"
+        " width: 24px;"
+        " border-left: 1px solid #d1d5db;"
+        "}"
+        "QComboBox QAbstractItemView {"
+        " color: #111827;"
+        " background-color: #ffffff;"
+        " selection-background-color: #dbeafe;"
+        " selection-color: #111827;"
+        " border: 1px solid #9ca3af;"
+        "}"
+        "QPushButton {"
+        " color: #111827;"
+        " background-color: #ffffff;"
+        " border: 1px solid #9ca3af;"
+        " border-radius: 5px;"
+        " padding: 6px 14px;"
+        " font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        " background-color: #e5e7eb;"
+        "}"
+        "QListWidget {"
+        " color: #111827;"
+        " background-color: #ffffff;"
+        " border: 1px solid #d1d5db;"
+        " border-radius: 5px;"
+        " padding: 4px;"
+        "}"
+        "QListWidget::item {"
+        " padding: 4px;"
+        "}"
+    );
 
     QVBoxLayout* panelRootLayout = new QVBoxLayout(panel);
-    panelRootLayout->setContentsMargins(12, 10, 12, 10);
-    panelRootLayout->setSpacing(8);
+    panelRootLayout->setContentsMargins(14, 12, 14, 12);
+    panelRootLayout->setSpacing(10);
 
-    QHBoxLayout* topLayout = new QHBoxLayout();
-    topLayout->setSpacing(10);
+    QHBoxLayout* infoLayout = new QHBoxLayout();
+    infoLayout->setSpacing(10);
+
+    QHBoxLayout* controlLayout = new QHBoxLayout();
+    controlLayout->setSpacing(10);
 
     m_minesLabel = new QLabel(panel);
     m_timerLabel = new QLabel(panel);
     m_openedLabel = new QLabel(panel);
     m_modeLabel = new QLabel(panel);
     m_statusLabel = new QLabel(panel);
+    m_hintLabel = new QLabel("ЛКМ — открыть клетку, ПКМ — поставить флаг", panel);
     m_difficultyComboBox = new QComboBox(panel);
     m_newGameButton = new QPushButton("Новая игра", panel);
     m_eventList = new QListWidget(panel);
 
-    m_minesLabel->setMinimumWidth(80);
-    m_timerLabel->setMinimumWidth(80);
-    m_openedLabel->setMinimumWidth(95);
-    m_modeLabel->setMinimumWidth(105);
-    m_statusLabel->setMinimumWidth(90);
-    m_difficultyComboBox->setMinimumWidth(110);
-    m_eventList->setMaximumHeight(118);
+    m_minesLabel->setObjectName("infoLabel");
+    m_timerLabel->setObjectName("infoLabel");
+    m_openedLabel->setObjectName("infoLabel");
+    m_modeLabel->setObjectName("infoLabel");
+    m_statusLabel->setObjectName("infoLabel");
+    m_hintLabel->setObjectName("hintLabel");
+
+    m_minesLabel->setMinimumWidth(110);
+    m_timerLabel->setMinimumWidth(110);
+    m_openedLabel->setMinimumWidth(120);
+    m_modeLabel->setMinimumWidth(140);
+    m_statusLabel->setMinimumWidth(130);
+    m_hintLabel->setMinimumWidth(290);
+    m_difficultyComboBox->setMinimumWidth(150);
+    m_newGameButton->setMinimumWidth(130);
+    m_eventList->setMaximumHeight(132);
+
+    m_newGameButton->setCursor(Qt::PointingHandCursor);
+    m_difficultyComboBox->setCursor(Qt::PointingHandCursor);
 
     setupDifficultySelector();
 
-    topLayout->addWidget(m_minesLabel);
-    topLayout->addWidget(m_timerLabel);
-    topLayout->addWidget(m_openedLabel);
-    topLayout->addWidget(m_modeLabel);
-    topLayout->addWidget(m_difficultyComboBox);
-    topLayout->addStretch();
-    topLayout->addWidget(m_statusLabel);
-    topLayout->addWidget(m_newGameButton);
+    infoLayout->addWidget(m_minesLabel);
+    infoLayout->addWidget(m_timerLabel);
+    infoLayout->addWidget(m_openedLabel);
+    infoLayout->addWidget(m_modeLabel);
+    infoLayout->addStretch();
+    infoLayout->addWidget(m_statusLabel);
+
+    controlLayout->addWidget(m_difficultyComboBox);
+    controlLayout->addWidget(m_newGameButton);
+    controlLayout->addWidget(m_hintLabel);
+    controlLayout->addStretch();
 
     QLabel* eventTitleLabel = new QLabel("Журнал событий", panel);
+    eventTitleLabel->setObjectName("eventTitleLabel");
 
-    panelRootLayout->addLayout(topLayout);
+    panelRootLayout->addLayout(infoLayout);
+    panelRootLayout->addLayout(controlLayout);
     panelRootLayout->addWidget(eventTitleLabel);
     panelRootLayout->addWidget(m_eventList);
 
@@ -123,14 +214,8 @@ void StatusPanelWidget::setupLayout() {
     connect(m_newGameButton, &QPushButton::clicked, this, &StatusPanelWidget::newGameRequested);
 
     connect(m_difficultyComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
-        m_placedFlags = 0;
-        m_openedCells = 0;
-        m_elapsedSeconds = 0;
-        m_status = "Готов к игре";
-        m_eventList->clear();
-        m_gameTimer->reset();
+        reset();
         emit difficultySelected(selectedDifficulty());
-        updateLabels();
         });
 }
 
@@ -155,6 +240,62 @@ void StatusPanelWidget::updateLabels() {
     m_openedLabel->setText(QString("Открыто: %1").arg(m_openedCells));
     m_modeLabel->setText(m_mode);
     m_statusLabel->setText(m_status);
+    updateStatusStyle();
+}
+
+void StatusPanelWidget::updateStatusStyle() {
+    if (m_status == "Игра идет") {
+        m_statusLabel->setStyleSheet(
+            "QLabel#infoLabel {"
+            " color: #1d4ed8;"
+            " background-color: #dbeafe;"
+            " border: 1px solid #93c5fd;"
+            " border-radius: 5px;"
+            " padding: 5px 8px;"
+            " font-weight: bold;"
+            "}"
+        );
+        return;
+    }
+
+    if (m_status == "Победа") {
+        m_statusLabel->setStyleSheet(
+            "QLabel#infoLabel {"
+            " color: #166534;"
+            " background-color: #dcfce7;"
+            " border: 1px solid #86efac;"
+            " border-radius: 5px;"
+            " padding: 5px 8px;"
+            " font-weight: bold;"
+            "}"
+        );
+        return;
+    }
+
+    if (m_status == "Поражение") {
+        m_statusLabel->setStyleSheet(
+            "QLabel#infoLabel {"
+            " color: #991b1b;"
+            " background-color: #fee2e2;"
+            " border: 1px solid #fca5a5;"
+            " border-radius: 5px;"
+            " padding: 5px 8px;"
+            " font-weight: bold;"
+            "}"
+        );
+        return;
+    }
+
+    m_statusLabel->setStyleSheet(
+        "QLabel#infoLabel {"
+        " color: #374151;"
+        " background-color: #f9fafb;"
+        " border: 1px solid #d1d5db;"
+        " border-radius: 5px;"
+        " padding: 5px 8px;"
+        " font-weight: bold;"
+        "}"
+    );
 }
 
 void StatusPanelWidget::updateTimerByStatus() {

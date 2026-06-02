@@ -39,6 +39,7 @@ private:
     QGridLayout* m_gridLayout;
     std::vector<CellButton*> m_buttons;
     GameDifficulty m_currentDifficulty;
+    bool m_boardLocked;
 
     void setupBoard();
     void rebuildBoard();
@@ -46,6 +47,7 @@ private:
     void createButtons();
     void updateButton(const CellPosition& position);
     void updateAllButtons();
+    void setBoardLocked(bool locked);
     void openCell(const CellPosition& position);
     void toggleFlag(const CellPosition& position);
     QString statusText(GameState state, GameResult result) const;

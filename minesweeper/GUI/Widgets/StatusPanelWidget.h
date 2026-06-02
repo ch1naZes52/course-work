@@ -35,6 +35,7 @@ private:
     QLabel* m_openedLabel;
     QLabel* m_modeLabel;
     QLabel* m_statusLabel;
+    QLabel* m_hintLabel;
     QComboBox* m_difficultyComboBox;
     QPushButton* m_newGameButton;
     QListWidget* m_eventList;
@@ -52,6 +53,7 @@ private:
     void setupDifficultySelector();
     void setupTimer();
     void updateLabels();
+    void updateStatusStyle();
     void updateTimerByStatus();
     QString formattedTime() const;
     GameDifficulty selectedDifficulty() const;
