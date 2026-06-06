@@ -55,9 +55,6 @@
     <ClCompile Include="App\Flag\FlagManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="App\Observer\GameSubject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="App\Opener\CellOpener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,19 +76,7 @@
     <ClCompile Include="Core\Mine\MineCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\Widgets\BoardWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\Widgets\CellButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\Widgets\StatusPanelWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Window\MainWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\Config\SettingsProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils\Generator\RandomMineGenerator.cpp">
@@ -127,9 +112,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="App\Flag\FlagManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="App\Observer\GameSubject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="App\Observer\IGameObserver.h">
@@ -171,30 +153,18 @@
     <ClInclude Include="Core\Mine\MineCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Window\MainWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Config\SettingsProvider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\Generator\IMineGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Generator\RandomMineGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\TImer\GameTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="GUI\Widgets\BoardWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="GUI\Widgets\CellButton.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="GUI\Widgets\StatusPanelWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Utils\TImer\GameTimer.h">
+    <QtMoc Include="GUI\Window\MainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

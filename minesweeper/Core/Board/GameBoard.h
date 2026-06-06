@@ -2,42 +2,27 @@
 
 #include "BoardSize.h"
 #include "../Cell/Cell.h"
-
 #include <vector>
 
 class GameBoard {
 public:
     GameBoard();
     explicit GameBoard(const BoardSize& size);
-
-    const BoardSize& size() const;
     int rows() const;
     int columns() const;
     int cellCount() const;
-
-    bool isValidPosition(const CellPosition& position) const;
-
-    Cell& cellAt(const CellPosition& position);
-    const Cell& cellAt(const CellPosition& position) const;
-
-    std::vector<Cell*> neighborsOf(const CellPosition& position);
-    std::vector<const Cell*> neighborsOf(const CellPosition& position) const;
-
-    std::vector<Cell*> cells();
-    std::vector<const Cell*> cells() const;
-
-    void resize(const BoardSize& size);
-    void reset();
-    void revealAllMines();
-
-    int openedCellCount() const;
-    int flaggedCellCount() const;
-    int closedCellCount() const;
-    int mineCount() const;
+    bool contains(const CellPosition& position) const;
+    Cell& cell(const CellPosition& position);
+    const Cell& cell(const CellPosition& position) const;
+    std::vector<CellPosition> neighbors(const CellPosition& position) const;
+    std::vector<Cell>& cells();
+    const std::vector<Cell>& cells() const;
+    void reset(const BoardSize& size);
+    void revealMines();
+    int openedCount() const;
 
 private:
     BoardSize m_size;
-    std::vector<std::vector<Cell>> m_cells;
-
-    void createCells();
+    std::vector<Cell> m_cells;
+    int index(const CellPosition& position) const;
 };

@@ -1,24 +1,10 @@
 ﻿#include "RandomMineGenerator.h"
-
 #include <algorithm>
 #include <random>
 #include <vector>
 
-void RandomMineGenerator::generate(GameBoard& board, int mineCount, const CellPosition& firstMove) {
-    clearBoard(board);
-    placeMines(board, mineCount, firstMove);
-    updateAdjacentMineCounts(board);
-}
-
-void RandomMineGenerator::clearBoard(GameBoard& board) {
-    for (Cell* cell : board.cells()) {
-        cell->reset();
-    }
-}
-
-void RandomMineGenerator::placeMines(GameBoard& board, int mineCount, const CellPosition& firstMove) {
+void RandomMineGenerator::generate(GameBoard& board, int mines, const CellPosition& firstMove) {
     std::vector<CellPosition> positions;
-    positions.reserve(board.cellCount());
 
     for (int row = 0; row < board.rows(); ++row) {
         for (int column = 0; column < board.columns(); ++column) {
@@ -30,32 +16,27 @@ void RandomMineGenerator::placeMines(GameBoard& board, int mineCount, const Cell
         }
     }
 
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
+    std::shuffle(positions.begin(), positions.end(), std::mt19937(std::random_device()()));
 
-    std::shuffle(positions.begin(), positions.end(), generator);
-
-    int minesToPlace = std::min(mineCount, static_cast<int>(positions.size()));
-
-    for (int index = 0; index < minesToPlace; ++index) {
-        board.cellAt(positions[index]).setMine();
+    for (int i = 0; i < mines && i < static_cast<int>(positions.size()); ++i) {
+        board.cell(positions[i]).setMine();
     }
+
+    updateNumbers(board);
 }
 
-void RandomMineGenerator::updateAdjacentMineCounts(GameBoard& board) {
-    for (Cell* cell : board.cells()) {
-        if (cell->isMine()) {
+void RandomMineGenerator::updateNumbers(GameBoard& board) {
+    for (Cell& cell : board.cells()) {
+        if (cell.isMine()) {
             continue;
         }
 
         int count = 0;
 
-        for (const Cell* neighbor : board.neighborsOf(cell->position())) {
-            if (neighbor->isMine()) {
-                ++count;
-            }
+        for (const CellPosition& position : board.neighbors(cell.position())) {
+            count += board.cell(position).isMine() ? 1 : 0;
         }
 
-        cell->setAdjacentMines(count);
+        cell.setAdjacentMines(count);
     }
 }

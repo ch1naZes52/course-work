@@ -92,7 +92,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Utils\Config\SettingsProvider.cpp" />
     <ClCompile Include="Utils\Generator\RandomMineGenerator.cpp" />
     <ClCompile Include="Utils\TImer\GameTimer.cpp" />
     <QtRcc Include="minesweeper.qrc" />
@@ -104,7 +103,6 @@
     <ClCompile Include="App\Controller\GameController.cpp" />
     <ClCompile Include="App\Factory\GameFactory.cpp" />
     <ClCompile Include="App\Flag\FlagManager.cpp" />
-    <ClCompile Include="App\Observer\GameSubject.cpp" />
     <ClCompile Include="App\Opener\CellOpener.cpp" />
     <ClCompile Include="Core\Board\BoardSize.cpp" />
     <ClCompile Include="Core\Board\GameBoard.cpp" />
@@ -112,9 +110,6 @@
     <ClCompile Include="Core\Cell\CellPosition.cpp" />
     <ClCompile Include="Core\Game\GameSettings.cpp" />
     <ClCompile Include="Core\Mine\MineCounter.cpp" />
-    <ClCompile Include="GUI\Widgets\BoardWidget.cpp" />
-    <ClCompile Include="GUI\Widgets\CellButton.cpp" />
-    <ClCompile Include="GUI\Widgets\StatusPanelWidget.cpp" />
     <ClCompile Include="GUI\Window\MainWindow.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -128,7 +123,6 @@
     <ClInclude Include="App\Factory\GameFactory.h" />
     <ClInclude Include="App\Factory\IGameFactory.h" />
     <ClInclude Include="App\Flag\FlagManager.h" />
-    <ClInclude Include="App\Observer\GameSubject.h" />
     <ClInclude Include="App\Observer\IGameObserver.h" />
     <ClInclude Include="App\Opener\CellOpener.h" />
     <ClInclude Include="Core\Board\BoardSize.h" />
@@ -142,14 +136,10 @@
     <ClInclude Include="Core\Game\GameSettings.h" />
     <ClInclude Include="Core\Game\GameState.h" />
     <ClInclude Include="Core\Mine\MineCounter.h" />
-    <QtMoc Include="GUI\Widgets\BoardWidget.h" />
-    <QtMoc Include="GUI\Widgets\CellButton.h" />
-    <QtMoc Include="GUI\Widgets\StatusPanelWidget.h" />
-    <ClInclude Include="GUI\Window\MainWindow.h" />
-    <ClInclude Include="Utils\Config\SettingsProvider.h" />
+    <QtMoc Include="GUI\Window\MainWindow.h" />
     <ClInclude Include="Utils\Generator\IMineGenerator.h" />
     <ClInclude Include="Utils\Generator\RandomMineGenerator.h" />
-    <QtMoc Include="Utils\TImer\GameTimer.h" />
+    <ClInclude Include="Utils\TImer\GameTimer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

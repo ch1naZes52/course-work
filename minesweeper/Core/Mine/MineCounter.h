@@ -3,19 +3,12 @@
 class MineCounter {
 public:
     MineCounter();
-    explicit MineCounter(int totalMines);
-
-    int totalMines() const;
-    int flaggedCells() const;
-    int remainingMines() const;
-
-    void setTotalMines(int totalMines);
-    void reset(int totalMines);
-
+    int remaining() const;
+    void reset(int mines);
     bool addFlag();
     bool removeFlag();
 
 private:
-    int m_totalMines;
-    int m_flaggedCells;
+    int m_mines;
+    int m_flags;
 };

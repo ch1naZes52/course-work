@@ -1,51 +1,30 @@
 ﻿#include "MineCounter.h"
 
-MineCounter::MineCounter()
-    : m_totalMines(0),
-    m_flaggedCells(0) {
+MineCounter::MineCounter() : m_mines(0), m_flags(0) {}
+
+int MineCounter::remaining() const {
+    return m_mines - m_flags;
 }
 
-MineCounter::MineCounter(int totalMines)
-    : m_totalMines(totalMines),
-    m_flaggedCells(0) {
-}
-
-int MineCounter::totalMines() const {
-    return m_totalMines;
-}
-
-int MineCounter::flaggedCells() const {
-    return m_flaggedCells;
-}
-
-int MineCounter::remainingMines() const {
-    return m_totalMines - m_flaggedCells;
-}
-
-void MineCounter::setTotalMines(int totalMines) {
-    m_totalMines = totalMines;
-    m_flaggedCells = 0;
-}
-
-void MineCounter::reset(int totalMines) {
-    m_totalMines = totalMines;
-    m_flaggedCells = 0;
+void MineCounter::reset(int mines) {
+    m_mines = mines;
+    m_flags = 0;
 }
 
 bool MineCounter::addFlag() {
-    if (m_flaggedCells >= m_totalMines) {
+    if (m_flags >= m_mines) {
         return false;
     }
 
-    ++m_flaggedCells;
+    ++m_flags;
     return true;
 }
 
 bool MineCounter::removeFlag() {
-    if (m_flaggedCells <= 0) {
+    if (m_flags <= 0) {
         return false;
     }
 
-    --m_flaggedCells;
+    --m_flags;
     return true;
 }

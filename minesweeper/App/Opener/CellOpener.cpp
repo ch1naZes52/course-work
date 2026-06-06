@@ -3,63 +3,48 @@
 #include <queue>
 
 bool CellOpener::open(GameBoard& board, const CellPosition& position) {
-    if (!board.isValidPosition(position)) {
+    if (!board.contains(position) || !board.cell(position).canOpen()) {
         return false;
     }
 
-    Cell& cell = board.cellAt(position);
-
-    if (!cell.canBeOpened()) {
-        return false;
+    if (board.cell(position).isMine() || board.cell(position).isNumber()) {
+        return board.cell(position).open();
     }
 
-    if (cell.isMine()) {
-        return cell.open();
-    }
+    std::queue<CellPosition> queue;
+    queue.push(position);
 
-    if (cell.isNumber()) {
-        return cell.open();
-    }
+    while (!queue.empty()) {
+        CellPosition current = queue.front();
+        queue.pop();
 
-    openEmptyArea(board, position);
-    return true;
-}
+        Cell& cell = board.cell(current);
 
-void CellOpener::openEmptyArea(GameBoard& board, const CellPosition& startPosition) {
-    std::queue<CellPosition> positions;
-    positions.push(startPosition);
-
-    while (!positions.empty()) {
-        CellPosition currentPosition = positions.front();
-        positions.pop();
-
-        Cell& currentCell = board.cellAt(currentPosition);
-
-        if (!currentCell.canBeOpened()) {
+        if (!cell.canOpen()) {
             continue;
         }
 
-        currentCell.open();
+        cell.open();
 
-        if (!currentCell.isEmpty()) {
+        if (!cell.isEmpty()) {
             continue;
         }
 
-        for (Cell* neighbor : board.neighborsOf(currentPosition)) {
-            if (!neighbor->canBeOpened()) {
+        for (const CellPosition& next : board.neighbors(current)) {
+            Cell& neighbor = board.cell(next);
+
+            if (!neighbor.canOpen() || neighbor.isMine()) {
                 continue;
             }
 
-            if (neighbor->isMine()) {
-                continue;
-            }
-
-            if (neighbor->isEmpty()) {
-                positions.push(neighbor->position());
+            if (neighbor.isEmpty()) {
+                queue.push(next);
             }
             else {
-                neighbor->open();
+                neighbor.open();
             }
         }
     }
+
+    return true;
 }

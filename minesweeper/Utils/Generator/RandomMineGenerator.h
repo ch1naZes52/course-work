@@ -4,10 +4,8 @@
 
 class RandomMineGenerator : public IMineGenerator {
 public:
-    void generate(GameBoard& board, int mineCount, const CellPosition& firstMove) override;
+    void generate(GameBoard& board, int mines, const CellPosition& firstMove) override;
 
 private:
-    void clearBoard(GameBoard& board);
-    void placeMines(GameBoard& board, int mineCount, const CellPosition& firstMove);
-    void updateAdjacentMineCounts(GameBoard& board);
+    void updateNumbers(GameBoard& board);
 };

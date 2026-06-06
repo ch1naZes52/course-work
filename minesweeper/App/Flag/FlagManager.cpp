@@ -1,45 +1,22 @@
 ﻿#include "FlagManager.h"
 
-bool FlagManager::toggleFlag(GameBoard& board, MineCounter& mineCounter, const CellPosition& position) {
-    if (!board.isValidPosition(position)) {
+bool FlagManager::toggle(GameBoard& board, MineCounter& counter, const CellPosition& position) {
+    if (!board.contains(position) || board.cell(position).isOpened()) {
         return false;
     }
 
-    Cell& cell = board.cellAt(position);
-
-    if (!cell.canBeFlagged()) {
-        return false;
-    }
+    Cell& cell = board.cell(position);
 
     if (cell.isFlagged()) {
-        return removeFlag(cell, mineCounter);
+        cell.toggleFlag();
+        counter.removeFlag();
+        return true;
     }
 
-    return placeFlag(cell, mineCounter);
-}
-
-bool FlagManager::placeFlag(Cell& cell, MineCounter& mineCounter) {
-    if (!mineCounter.addFlag()) {
+    if (!counter.addFlag()) {
         return false;
     }
 
-    if (!cell.placeFlag()) {
-        mineCounter.removeFlag();
-        return false;
-    }
-
-    return true;
-}
-
-bool FlagManager::removeFlag(Cell& cell, MineCounter& mineCounter) {
-    if (!cell.removeFlag()) {
-        return false;
-    }
-
-    if (!mineCounter.removeFlag()) {
-        cell.placeFlag();
-        return false;
-    }
-
+    cell.toggleFlag();
     return true;
 }

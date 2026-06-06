@@ -1,29 +1,11 @@
 ﻿#include "Cell.h"
 
-Cell::Cell()
-    : m_position(),
-    m_state(CellState::Closed),
-    m_type(CellType::Empty),
-    m_adjacentMines(0) {
-}
+Cell::Cell() : m_position(), m_state(CellState::Closed), m_type(CellType::Empty), m_adjacentMines(0) {}
 
-Cell::Cell(const CellPosition& position)
-    : m_position(position),
-    m_state(CellState::Closed),
-    m_type(CellType::Empty),
-    m_adjacentMines(0) {
-}
+Cell::Cell(const CellPosition& position) : m_position(position), m_state(CellState::Closed), m_type(CellType::Empty), m_adjacentMines(0) {}
 
 const CellPosition& Cell::position() const {
     return m_position;
-}
-
-CellState Cell::state() const {
-    return m_state;
-}
-
-CellType Cell::type() const {
-    return m_type;
 }
 
 int Cell::adjacentMines() const {
@@ -32,10 +14,6 @@ int Cell::adjacentMines() const {
 
 bool Cell::isOpened() const {
     return m_state == CellState::Opened;
-}
-
-bool Cell::isClosed() const {
-    return m_state == CellState::Closed;
 }
 
 bool Cell::isFlagged() const {
@@ -54,16 +32,8 @@ bool Cell::isNumber() const {
     return m_type == CellType::Number;
 }
 
-bool Cell::canBeOpened() const {
+bool Cell::canOpen() const {
     return m_state == CellState::Closed;
-}
-
-bool Cell::canBeFlagged() const {
-    return m_state == CellState::Closed || m_state == CellState::Flagged;
-}
-
-void Cell::setPosition(const CellPosition& position) {
-    m_position = position;
 }
 
 void Cell::setMine() {
@@ -71,22 +41,15 @@ void Cell::setMine() {
     m_adjacentMines = 0;
 }
 
-void Cell::clearMine() {
-    m_type = CellType::Empty;
-    m_adjacentMines = 0;
-}
-
 void Cell::setAdjacentMines(int count) {
-    if (m_type == CellType::Mine) {
-        return;
+    if (!isMine()) {
+        m_adjacentMines = count;
+        m_type = count > 0 ? CellType::Number : CellType::Empty;
     }
-
-    m_adjacentMines = count;
-    updateTypeByAdjacentMines();
 }
 
 bool Cell::open() {
-    if (!canBeOpened()) {
+    if (!canOpen()) {
         return false;
     }
 
@@ -95,10 +58,6 @@ bool Cell::open() {
 }
 
 bool Cell::reveal() {
-    if (m_state == CellState::Opened) {
-        return false;
-    }
-
     m_state = CellState::Opened;
     return true;
 }
@@ -117,35 +76,8 @@ bool Cell::toggleFlag() {
     return false;
 }
 
-bool Cell::placeFlag() {
-    if (m_state != CellState::Closed) {
-        return false;
-    }
-
-    m_state = CellState::Flagged;
-    return true;
-}
-
-bool Cell::removeFlag() {
-    if (m_state != CellState::Flagged) {
-        return false;
-    }
-
-    m_state = CellState::Closed;
-    return true;
-}
-
 void Cell::reset() {
     m_state = CellState::Closed;
     m_type = CellType::Empty;
     m_adjacentMines = 0;
-}
-
-void Cell::updateTypeByAdjacentMines() {
-    if (m_adjacentMines > 0) {
-        m_type = CellType::Number;
-    }
-    else {
-        m_type = CellType::Empty;
-    }
 }

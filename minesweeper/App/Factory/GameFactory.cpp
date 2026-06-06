@@ -1,25 +1,15 @@
 ﻿#include "GameFactory.h"
 
 GameSettings GameFactory::createSettings(GameDifficulty difficulty) const {
-    if (difficulty == GameDifficulty::Beginner) {
-        return GameSettings::beginner();
-    }
-
-    if (difficulty == GameDifficulty::Intermediate) {
-        return GameSettings::intermediate();
-    }
-
-    if (difficulty == GameDifficulty::Expert) {
-        return GameSettings::expert();
-    }
-
-    return GameSettings::beginner();
+    return GameSettings::create(difficulty);
 }
 
 GameBoard GameFactory::createBoard(const GameSettings& settings) const {
-    return GameBoard(settings.boardSize());
+    return GameBoard(settings.size());
 }
 
-MineCounter GameFactory::createMineCounter(const GameSettings& settings) const {
-    return MineCounter(settings.mineCount());
+MineCounter GameFactory::createCounter(const GameSettings& settings) const {
+    MineCounter counter;
+    counter.reset(settings.mines());
+    return counter;
 }

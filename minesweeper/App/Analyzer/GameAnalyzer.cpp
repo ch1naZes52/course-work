@@ -1,33 +1,17 @@
 ﻿#include "GameAnalyzer.h"
 
 GameResult GameAnalyzer::analyze(const GameBoard& board) const {
-    if (hasOpenedMine(board)) {
-        return GameResult::Defeat;
-    }
+    int safe = 0;
+    int opened = 0;
 
-    if (allSafeCellsOpened(board)) {
-        return GameResult::Victory;
-    }
-
-    return GameResult::None;
-}
-
-bool GameAnalyzer::hasOpenedMine(const GameBoard& board) const {
-    for (const Cell* cell : board.cells()) {
-        if (cell->isMine() && cell->isOpened()) {
-            return true;
+    for (const Cell& cell : board.cells()) {
+        if (cell.isMine() && cell.isOpened()) {
+            return GameResult::Defeat;
         }
+
+        safe += cell.isMine() ? 0 : 1;
+        opened += !cell.isMine() && cell.isOpened() ? 1 : 0;
     }
 
-    return false;
-}
-
-bool GameAnalyzer::allSafeCellsOpened(const GameBoard& board) const {
-    for (const Cell* cell : board.cells()) {
-        if (!cell->isMine() && !cell->isOpened()) {
-            return false;
-        }
-    }
-
-    return true;
+    return safe == opened ? GameResult::Victory : GameResult::None;
 }

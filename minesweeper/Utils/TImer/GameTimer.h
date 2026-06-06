@@ -1,29 +1,15 @@
 ﻿#pragma once
 
-#include <QObject>
-#include <QTimer>
-
-class GameTimer : public QObject {
-    Q_OBJECT
-
+class GameTimer {
 public:
-    explicit GameTimer(QObject* parent = nullptr);
-
+    GameTimer();
     int seconds() const;
-    bool isRunning() const;
-
-public slots:
     void start();
     void stop();
     void reset();
-
-signals:
-    void secondsChanged(int seconds);
+    void tick();
 
 private:
-    QTimer* m_timer;
     int m_seconds;
     bool m_running;
-
-    void setupTimer();
 };

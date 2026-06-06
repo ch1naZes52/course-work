@@ -3,6 +3,5 @@
 enum class GameDifficulty {
     Beginner,
     Intermediate,
-    Expert,
-    Custom
+    Expert
 };

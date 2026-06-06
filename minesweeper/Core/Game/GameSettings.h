@@ -6,25 +6,14 @@
 class GameSettings {
 public:
     GameSettings();
-    GameSettings(const BoardSize& boardSize, int mineCount, GameDifficulty difficulty);
-
-    const BoardSize& boardSize() const;
-    int mineCount() const;
+    GameSettings(const BoardSize& size, int mines, GameDifficulty difficulty);
+    const BoardSize& size() const;
+    int mines() const;
     GameDifficulty difficulty() const;
-
-    void setBoardSize(const BoardSize& boardSize);
-    void setMineCount(int mineCount);
-    void setDifficulty(GameDifficulty difficulty);
-
-    bool isValid() const;
-
-    static GameSettings beginner();
-    static GameSettings intermediate();
-    static GameSettings expert();
-    static GameSettings custom(int rows, int columns, int mines);
+    static GameSettings create(GameDifficulty difficulty);
 
 private:
-    BoardSize m_boardSize;
-    int m_mineCount;
+    BoardSize m_size;
+    int m_mines;
     GameDifficulty m_difficulty;
 };

@@ -8,32 +8,19 @@ class Cell {
 public:
     Cell();
     explicit Cell(const CellPosition& position);
-
     const CellPosition& position() const;
-    CellState state() const;
-    CellType type() const;
     int adjacentMines() const;
-
     bool isOpened() const;
-    bool isClosed() const;
     bool isFlagged() const;
     bool isMine() const;
     bool isEmpty() const;
     bool isNumber() const;
-    bool canBeOpened() const;
-    bool canBeFlagged() const;
-
-    void setPosition(const CellPosition& position);
+    bool canOpen() const;
     void setMine();
-    void clearMine();
     void setAdjacentMines(int count);
-
     bool open();
     bool reveal();
     bool toggleFlag();
-    bool placeFlag();
-    bool removeFlag();
-
     void reset();
 
 private:
@@ -41,6 +28,4 @@ private:
     CellState m_state;
     CellType m_type;
     int m_adjacentMines;
-
-    void updateTypeByAdjacentMines();
 };
